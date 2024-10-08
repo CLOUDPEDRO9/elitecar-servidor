@@ -1,3 +1,8 @@
+import { DatabaseModel } from "./DatabaseModel";
+
+// Recupera o pool de conexões do banco de dados
+const database = new DatabaseModel().pool;
+
 /**
  * Classe que representa um pedido de venda.
  */
@@ -8,7 +13,7 @@ export class PedidoVenda {
      * Identificador do pedido de venda.
      * Inicializado com o valor padrão de 0.
      */
-    private idPedidoVenda: number = 0;
+    private idPedido: number = 0;
 
     /**
      * Identificador do carro relacionado ao pedido.
@@ -58,8 +63,8 @@ export class PedidoVenda {
      * 
      * @returns {number} O identificador do pedido de venda.
      */
-    public getIdPedidoVenda(): number {
-        return this.idPedidoVenda;
+    public getIdPedido(): number {
+        return this.idPedido;
     }
 
     /**
@@ -67,8 +72,8 @@ export class PedidoVenda {
      * 
      * @param idPedidoVenda O novo identificador do pedido de venda.
      */
-    public setIdPedidoVenda(idPedidoVenda: number): void {
-        this.idPedidoVenda = idPedidoVenda;
+    public setIdPedido(idPedido: number): void {
+        this.idPedido = idPedido;
     }
 
     /**
@@ -142,4 +147,42 @@ export class PedidoVenda {
     public setValorPedido(valorPedido: number): void {
         this.valorPedido = valorPedido;
     }
+
+    // MÉTODO PARA ACESSAR O BANCO DE DADOS
+    // CRUD Create - Reat - Update - Delete
+    static async listarPedidosVendas(): Promise<Array<PedidoVenda> | null> {
+        //CRIANDO LISTA VAZIA PARA ARMAZENAR OS CLIENTES
+        let listaDePedidoVenda: Array<PedidoVenda> = [];
+
+        try {
+            //Query para consulta no banco de dados
+            const querySelectPedidoVenda = `SELECT * FROM pedido_venda`;
+
+            //executa a query no banco de dados
+            const respostaBD = await database.query(querySelectPedidoVenda);
+
+            respostaBD.rows.forEach((pedidoVenda) => {
+                let novaPedidoVenda = new PedidoVenda(
+                    pedidoVenda.id_carro,
+                    pedidoVenda.id_cliente,
+                    pedidoVenda.data_pedido,
+                    pedidoVenda.valor_pedido
+                )
+
+                // adicionando o ID ao objeto
+                novaPedidoVenda.setIdPedido(pedidoVenda.id_pedido);
+                console.log(novaPedidoVenda);
+                // adiconando o cliente a lista
+                listaDePedidoVenda.push(novaPedidoVenda);
+            });
+
+            // retornando a lista de clientes para quem chamou a função
+            return listaDePedidoVenda
+        } catch (error) {
+            console.log(`Erro ao acessar o modelo: ${error}`);
+            return null;
+            
+        } 
+    }
+
 }

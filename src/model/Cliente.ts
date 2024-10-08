@@ -1,3 +1,8 @@
+import { DatabaseModel } from "./DatabaseModel";
+
+// Recupera o pool de conexões do banco de dados
+const database = new DatabaseModel().pool;
+
 /**
  * Classe que representa um cliente.
  */
@@ -115,5 +120,41 @@ export class Cliente {
      */
     public setTelefone(telefone: string): void {
         this.telefone = telefone;
+    }
+
+    // MÉTODO PARA ACESSAR O BANCO DE DADOS
+    // CRUD Create - Reat - Update - Delete
+    static async listarCliente(): Promise<Array<Cliente> | null> {
+        //CRIANDO LISTA VAZIA PARA ARMAZENAR OS CLIENTES
+        let listaDeClientes: Array<Cliente> = [];
+
+        try {
+            //Query para consulta no banco de dados
+            const querySelectCliente = `SELECT * FROM cliente`;
+
+            //executa a query no banco de dados
+            const respostaBD = await database.query(querySelectCliente);
+
+            respostaBD.rows.forEach((cliente) => {
+                let novaCliente = new Cliente(
+                    cliente.nome,
+                    cliente.cpf,
+                    cliente.telefone,
+                )
+
+                // adicionando o ID ao objeto
+                novaCliente.setIdCliente(cliente.id);
+
+                // adiconando o cliente a lista
+                listaDeClientes.push(novaCliente);
+            });
+
+            // retornando a lista de clientes para quem chamou a função
+            return listaDeClientes
+        } catch (error) {
+            console.log(`Erro ao acessar o modelo: ${error}`);
+            return null;
+            
+        } 
     }
 }
