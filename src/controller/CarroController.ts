@@ -1,19 +1,34 @@
-import { Request,Response } from "express";
+import { Request, Response } from "express";
 import { Carro } from "../model/Carro";
 
-class CarroController extends Carro{
+/**
+ * A classe `CarroController` estende a classe `Carro` e é responsável por controlar as requisições relacionadas aos carros.
+ * 
+ * - Esta classe atua como um controlador dentro de uma API REST, gerenciando as operações relacionadas ao recurso "carro".
+ * - Herdando de `Carro`, ela pode acessar métodos e propriedades da classe base.
+ */
+export class CarroController extends Carro {
 
-    static async todos( req: Request, res: Response) {
-        try{
-            const listaDeCarros = await Carro.listarCarro();
+    /**
+    * Lista todos os carros.
+    * @param req Objeto de requisição HTTP.
+    * @param res Objeto de resposta HTTP.
+    * @returns Lista de carros em formato JSON com status 200 em caso de sucesso.
+    * @throws Retorna um status 400 com uma mensagem de erro caso ocorra uma falha ao acessar a listagem de carros.
+    */
+    static async todos(req: Request, res: Response): Promise<Response> {
+        try {
+            // acessa a função de listar os carros e armazena o resultado
+            let listaDeCarros = await Carro.listagemCarros();
 
-            res.status(200).json(listaDeCarros)
+            // retorna a lista de carros há quem fez a requisição web
+            return res.status(200).json(listaDeCarros);
         } catch (error) {
-            console.log(`Erro ao acessar método herdado: ${error}`);
+            // lança uma mensagem de erro no console
+            console.log('Erro ao acessar listagem de carros');
 
-            res.status(400).json("Erro ao recuperar as informações dos carros");
+            // retorna uma mensagem de erro há quem chamou a mensagem
+            return res.status(400).json({ mensagem: "Não foi possível acessar a listagem de carros" });
         }
     }
 }
-
-export default CarroController

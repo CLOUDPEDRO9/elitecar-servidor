@@ -1,59 +1,47 @@
+import { query } from "express";
 import { DatabaseModel } from "./DatabaseModel";
 
-// Recupera o pool de conexões do banco de dados
 const database = new DatabaseModel().pool;
 
 /**
- * Classe que representa um cliente.
+ * Representa um cliente com identificador único, nome, CPF e telefone.
  */
 export class Cliente {
 
-    /* Atributos */
     /**
-     * Identificador do cliente.
-     * Inicializado com o valor padrão de 0.
+     * Identificador único do cliente.
      */
     private idCliente: number = 0;
-
     /**
      * Nome do cliente.
      */
     private nome: string;
-
     /**
      * CPF do cliente.
      */
     private cpf: string;
-
     /**
      * Telefone do cliente.
      */
     private telefone: string;
 
     /**
-     * Construtor da classe Cliente.
-     * Inicializa os atributos com os valores fornecidos.
+     * Cria uma instância da classe Cliente.
      * 
-     * @param nome Nome do cliente.
-     * @param cpf CPF do cliente.
-     * @param telefone Telefone do cliente.
+     * @param nome - O nome do cliente.
+     * @param cpf - O CPF do cliente.
+     * @param telefone - O telefone do cliente.
      */
-    constructor(
-        nome: string,
-        cpf: string,
-        telefone: string
-    ) {
-        this.nome = nome;         // Atribui o nome fornecido ao atributo nome.
-        this.cpf = cpf;           // Atribui o CPF fornecido ao atributo cpf.
-        this.telefone = telefone; // Atribui o telefone fornecido ao atributo telefone.
+    constructor(nome: string, cpf: string, telefone: string) {
+        this.nome = nome;
+        this.cpf = cpf;
+        this.telefone = telefone;
     }
 
-    /* Métodos get e set */
-
     /**
-     * Retorna o identificador do cliente.
-     * 
-     * @returns {number} O identificador do cliente.
+     * Retorna o identificador único do cliente.
+     *
+     * @returns O identificador único do cliente.
      */
     public getIdCliente(): number {
         return this.idCliente;
@@ -61,17 +49,17 @@ export class Cliente {
 
     /**
      * Define o identificador do cliente.
-     * 
-     * @param idCliente O novo identificador do cliente.
+     *
+     * @param idCliente - O novo identificador do cliente.
      */
     public setIdCliente(idCliente: number): void {
         this.idCliente = idCliente;
     }
 
     /**
-     * Retorna o nome do cliente.
-     * 
-     * @returns {string} O nome do cliente.
+     * Obtém o nome do cliente.
+     *
+     * @returns O nome do cliente.
      */
     public getNome(): string {
         return this.nome;
@@ -80,15 +68,15 @@ export class Cliente {
     /**
      * Define o nome do cliente.
      * 
-     * @param nome O nome do cliente a ser definido.
+     * @param nome - O nome a ser definido para o cliente.
      */
     public setNome(nome: string): void {
         this.nome = nome;
     }
 
     /**
-     * Retorna o CPF do cliente.
-     * 
+     * Obtém o CPF do cliente.
+     *
      * @returns {string} O CPF do cliente.
      */
     public getCpf(): string {
@@ -98,63 +86,62 @@ export class Cliente {
     /**
      * Define o CPF do cliente.
      * 
-     * @param cpf O CPF a ser definido.
+     * @param cpf - O CPF a ser definido para o cliente.
      */
     public setCpf(cpf: string): void {
         this.cpf = cpf;
     }
 
     /**
-     * Retorna o telefone do cliente.
-     * 
-     * @returns {string} O telefone do cliente.
+     * Retorna o número de telefone do cliente.
+     *
+     * @returns {string} O número de telefone do cliente.
      */
     public getTelefone(): string {
         return this.telefone;
     }
 
     /**
-     * Define o telefone do cliente.
-     * 
-     * @param telefone O telefone a ser definido.
+     * Define o número de telefone do cliente.
+     *
+     * @param telefone - O número de telefone a ser definido.
      */
     public setTelefone(telefone: string): void {
         this.telefone = telefone;
     }
 
-    // MÉTODO PARA ACESSAR O BANCO DE DADOS
-    // CRUD Create - Reat - Update - Delete
-    static async listarCliente(): Promise<Array<Cliente> | null> {
-        //CRIANDO LISTA VAZIA PARA ARMAZENAR OS CLIENTES
-        let listaDeClientes: Array<Cliente> = [];
+    /**
+     * Busca e retorna uma lista de clientes do banco de dados.
+     * @returns Um array de objetos do tipo `Cliente` em caso de sucesso ou `null` se ocorrer um erro durante a consulta.
+     * 
+     * - A função realiza uma consulta SQL para obter todos os registros da tabela "cliente".
+     * - Os dados retornados são utilizados para instanciar objetos da classe `Cliente`.
+     * - Cada cliente instanciado é adicionado a uma lista que será retornada ao final da execução.
+     * - Se houver uma falha na consulta ao banco, a função captura o erro, exibe uma mensagem no console e retorna `null`.
+     */
+    static async listagemClientes(): Promise<Array<Cliente> | null> {
+        const listaDeClientes: Array<Cliente> = [];
 
         try {
-            //Query para consulta no banco de dados
             const querySelectCliente = `SELECT * FROM cliente`;
-
-            //executa a query no banco de dados
             const respostaBD = await database.query(querySelectCliente);
 
             respostaBD.rows.forEach((cliente) => {
-                let novaCliente = new Cliente(
+                let novoCliente = new Cliente(
                     cliente.nome,
                     cliente.cpf,
                     cliente.telefone,
-                )
+                );
 
-                // adicionando o ID ao objeto
-                novaCliente.setIdCliente(cliente.id);
+                novoCliente.setIdCliente(cliente.id_cliente);
 
-                // adiconando o cliente a lista
-                listaDeClientes.push(novaCliente);
+                listaDeClientes.push(novoCliente);
             });
-
-            // retornando a lista de clientes para quem chamou a função
-            return listaDeClientes
-        } catch (error) {
-            console.log(`Erro ao acessar o modelo: ${error}`);
-            return null;
             
-        } 
+            return listaDeClientes;
+        } catch (error) {
+            console.log('Erro ao buscar lista de carros');
+            return null;
+        }
     }
 }

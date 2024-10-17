@@ -1,188 +1,159 @@
 import { DatabaseModel } from "./DatabaseModel";
 
-// Recupera o pool de conexões do banco de dados
 const database = new DatabaseModel().pool;
 
 /**
- * Classe que representa um pedido de venda.
+ * Classe que representa um Pedido de Venda.
  */
 export class PedidoVenda {
-
-    /* Atributos */
     /**
-     * Identificador do pedido de venda.
-     * Inicializado com o valor padrão de 0.
+     * Identificador único do pedido de venda.
      */
     private idPedido: number = 0;
-
     /**
-     * Identificador do carro relacionado ao pedido.
+     * Identificador do carro associado ao pedido de venda.
      */
     private idCarro: number;
-
     /**
-     * Identificador do cliente relacionado ao pedido.
+     * Identificador do cliente associado ao pedido de venda.
      */
     private idCliente: number;
-
     /**
      * Data do pedido de venda.
      */
     private dataPedido: Date;
-
     /**
-     * Valor total do pedido de venda.
+     * Valor total do pedido.
      */
     private valorPedido: number;
 
     /**
      * Construtor da classe PedidoVenda.
-     * Inicializa os atributos com os valores fornecidos.
-     * 
-     * @param idCarro Identificador do carro relacionado ao pedido.
-     * @param idCliente Identificador do cliente relacionado ao pedido.
-     * @param dataPedido Data em que o pedido foi realizado.
-     * @param valorPedido Valor total do pedido.
+     * @param idCarro - Identificador do carro.
+     * @param idCliente - Identificador do cliente.
+     * @param dataPedido - Data do pedido.
+     * @param valorPedido - Valor do pedido.
      */
-    constructor(
-        idCarro: number, 
-        idCliente: number,
-        dataPedido: Date,
-        valorPedido: number
-    ) {
-        this.idCarro = idCarro;           // Atribui o ID do carro ao atributo idCarro.
-        this.idCliente = idCliente;       // Atribui o ID do cliente ao atributo idCliente.
-        this.dataPedido = dataPedido;     // Atribui a data do pedido ao atributo dataPedido.
-        this.valorPedido = valorPedido;   // Atribui o valor do pedido ao atributo valorPedido.
+    constructor(idCarro: number, idCliente: number, dataPedido: Date, valorPedido: number) {
+        this.idCarro = idCarro;
+        this.idCliente = idCliente;
+        this.dataPedido = dataPedido;
+        this.valorPedido = valorPedido;
     }
 
-    /* Métodos get e set */
-
     /**
-     * Retorna o identificador do pedido de venda.
-     * 
-     * @returns {number} O identificador do pedido de venda.
+     * Obtém o identificador do pedido.
+     * @returns O identificador do pedido.
      */
     public getIdPedido(): number {
         return this.idPedido;
     }
 
     /**
-     * Define o identificador do pedido de venda.
-     * 
-     * @param idPedidoVenda O novo identificador do pedido de venda.
+     * Define o identificador do pedido.
+     * @param idPedido - Novo identificador do pedido.
      */
     public setIdPedido(idPedido: number): void {
         this.idPedido = idPedido;
     }
 
     /**
-     * Retorna o identificador do carro relacionado ao pedido.
-     * 
-     * @returns {number} O identificador do carro.
+     * Obtém o identificador do carro.
+     * @returns O identificador do carro.
      */
     public getIdCarro(): number {
         return this.idCarro;
     }
 
     /**
-     * Define o identificador do carro relacionado ao pedido.
-     * 
-     * @param idCarro O novo identificador do carro.
+     * Define o identificador do carro.
+     * @param idCarro - Novo identificador do carro.
      */
     public setIdCarro(idCarro: number): void {
         this.idCarro = idCarro;
     }
 
     /**
-     * Retorna o identificador do cliente relacionado ao pedido.
-     * 
-     * @returns {number} O identificador do cliente.
+     * Obtém o identificador do cliente.
+     * @returns O identificador do cliente.
      */
     public getIdCliente(): number {
         return this.idCliente;
     }
 
     /**
-     * Define o identificador do cliente relacionado ao pedido.
-     * 
-     * @param idCliente O novo identificador do cliente.
+     * Define o identificador do cliente.
+     * @param idCliente - Novo identificador do cliente.
      */
     public setIdCliente(idCliente: number): void {
         this.idCliente = idCliente;
     }
 
     /**
-     * Retorna a data do pedido de venda.
-     * 
-     * @returns {Date} A data do pedido de venda.
+     * Obtém a data do pedido.
+     * @returns A data do pedido.
      */
     public getDataPedido(): Date {
         return this.dataPedido;
     }
 
     /**
-     * Define a data do pedido de venda.
-     * 
-     * @param dataPedido A nova data do pedido de venda.
+     * Define a data do pedido.
+     * @param dataPedido - Nova data do pedido.
      */
     public setDataPedido(dataPedido: Date): void {
         this.dataPedido = dataPedido;
     }
 
     /**
-     * Retorna o valor total do pedido de venda.
-     * 
-     * @returns {number} O valor do pedido de venda.
+     * Obtém o valor do pedido.
+     * @returns O valor do pedido.
      */
     public getValorPedido(): number {
         return this.valorPedido;
     }
 
     /**
-     * Define o valor total do pedido de venda.
-     * 
-     * @param valorPedido O novo valor do pedido de venda.
+     * Define o valor do pedido.
+     * @param valorPedido - Novo valor do pedido.
      */
     public setValorPedido(valorPedido: number): void {
         this.valorPedido = valorPedido;
     }
 
-    // MÉTODO PARA ACESSAR O BANCO DE DADOS
-    // CRUD Create - Reat - Update - Delete
-    static async listarPedidosVendas(): Promise<Array<PedidoVenda> | null> {
-        //CRIANDO LISTA VAZIA PARA ARMAZENAR OS CLIENTES
-        let listaDePedidoVenda: Array<PedidoVenda> = [];
+    /**
+     * Busca e retorna uma lista de pedidos de venda do banco de dados.
+     * @returns Um array de objetos do tipo `PedidoVenda` em caso de sucesso ou `null` se ocorrer um erro durante a consulta.
+     * 
+     * - A função realiza uma consulta SQL para obter todos os registros da tabela "pedido_venda".
+     * - Os dados retornados são utilizados para instanciar objetos da classe `PedidoVenda`.
+     * - Cada pedido de venda instanciado é adicionado a uma lista que será retornada ao final da execução.
+     * - Caso ocorra uma falha na consulta ao banco, a função captura o erro, exibe uma mensagem no console e retorna `null`.
+     */
+    static async listagemPedidos(): Promise<Array<PedidoVenda> | null> {
+        const listaDePedidos: Array<PedidoVenda> = [];
 
         try {
-            //Query para consulta no banco de dados
-            const querySelectPedidoVenda = `SELECT * FROM pedido_venda`;
-
-            //executa a query no banco de dados
-            const respostaBD = await database.query(querySelectPedidoVenda);
+            const querySelectPedidos = `SELECT * FROM pedido_venda;`;
+            const respostaBD = await database.query(querySelectPedidos);
 
             respostaBD.rows.forEach((pedidoVenda) => {
-                let novaPedidoVenda = new PedidoVenda(
+                let novoPedidoVenda = new PedidoVenda(
                     pedidoVenda.id_carro,
                     pedidoVenda.id_cliente,
                     pedidoVenda.data_pedido,
-                    pedidoVenda.valor_pedido
+                    parseFloat (pedidoVenda.valor_pedido)
                 )
 
-                // adicionando o ID ao objeto
-                novaPedidoVenda.setIdPedido(pedidoVenda.id_pedido);
-                console.log(novaPedidoVenda);
-                // adiconando o cliente a lista
-                listaDePedidoVenda.push(novaPedidoVenda);
+                novoPedidoVenda.setIdPedido(pedidoVenda.id_pedido);
+
+                listaDePedidos.push(novoPedidoVenda);
             });
 
-            // retornando a lista de clientes para quem chamou a função
-            return listaDePedidoVenda
+            return listaDePedidos;
         } catch (error) {
-            console.log(`Erro ao acessar o modelo: ${error}`);
+            console.log('Erro ao buscar lista de pedidos');
             return null;
-            
-        } 
+        }
     }
-
 }
