@@ -180,7 +180,7 @@ export class PedidoVenda {
                                         VALUES
                                         (${idCliente}, 
                                         ${idCarro}, 
-                                        '${dataPedido.toISOString()}',
+                                        '${dataPedido}',
                                         ${valorPedido}) 
                                         RETURNING id_pedido;`;
 
