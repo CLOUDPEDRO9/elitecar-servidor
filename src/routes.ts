@@ -37,5 +37,3 @@ router.post("/novo/pedido", PedidoVendaController.novo);
 
 // exportando as rotas
 export { router }; 
-
-
