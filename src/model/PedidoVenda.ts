@@ -131,23 +131,39 @@ export class PedidoVenda {
      * - Caso ocorra uma falha na consulta ao banco, a função captura o erro, exibe uma mensagem no console e retorna `null`.
      */
     static async listagemPedidos(): Promise<Array<PedidoVenda> | null> {
-        const listaDePedidos: Array<PedidoVenda> = [];
+        const listaDePedidos: Array<any> = [];
 
         try {
-            const querySelectPedidos = `SELECT * FROM pedido_venda;`;
+            const querySelectPedidos = `SELECT 
+                pedido_venda.id_pedido,
+                pedido_venda.id_carro,
+                pedido_venda.id_cliente,
+                TO_CHAR(pedido_venda.data_pedido, 'DD/MM/YYYY') AS data_pedido_br,
+                TO_CHAR(pedido_venda.valor_pedido, 'FM999G999D00') AS valor_total_br,
+                cliente.nome AS nome_cliente,
+                carro.modelo AS modelo_carro
+            FROM 
+                pedido_venda
+            JOIN 
+                cliente ON pedido_venda.id_cliente = cliente.id_cliente
+            JOIN 
+                carro ON pedido_venda.id_carro = carro.id_carro;`;
+
             const respostaBD = await database.query(querySelectPedidos);
+            
+            respostaBD.rows.forEach((linha) => {
+                let pedidoVenda = {
+                    idPedido: linha.id_pedido,
+                    idCarro: linha.id_carro,
+                    idCliente: linha.id_cliente,
+                    dataPedido: linha.data_pedido_br,
+                    valorTotal: parseFloat(linha.valor_total_br),
+                    nomeCliente: linha.nome_cliente,
+                    modeloCarro: linha.modelo_carro
+                };
 
-            respostaBD.rows.forEach((pedidoVenda) => {
-                let novoPedidoVenda = new PedidoVenda(
-                    pedidoVenda.id_carro,
-                    pedidoVenda.id_cliente,
-                    pedidoVenda.data_pedido,
-                    parseFloat(pedidoVenda.valor_pedido)
-                )
 
-                novoPedidoVenda.setIdPedido(pedidoVenda.id_pedido);
-
-                listaDePedidos.push(novoPedidoVenda);
+                listaDePedidos.push(pedidoVenda);
             });
 
             return listaDePedidos;
@@ -205,19 +221,33 @@ export class PedidoVenda {
             return false;
         }
     }
+
+    /**
+     * Remove um pedido de venda do banco de dados.
+     * 
+     * Esta função recebe o ID de um pedido de venda e realiza a exclusão desse pedido na tabela `pedido_venda` do banco de dados.
+     * O método retorna um valor booleano indicando se a remoção foi realizada com sucesso.
+     * 
+     * @param {number} idPedido - ID do pedido a ser removido.
+     * @returns {Promise<boolean>} - Retorna `true` se o pedido foi removido com sucesso e `false` caso contrário.
+     *                               Em caso de erro durante o processo, a função trata o erro e retorna `false`.
+     * 
+     * @throws {Error} - Se ocorrer algum erro durante a execução da remoção, uma mensagem de erro é exibida
+     *                   no console junto com os detalhes do erro.
+     */
     static async removerPedido(idPedido: number) : Promise<boolean> {
         try {
-            //cria uma query para deletar um objeto do banco de dados, passando como parâmetro
+            // cria uma query para deletar um objeto do banco de dados, passando como parâmetro
             const queryDeletePedido = `DELETE FROM pedido_venda WHERE id_pedido = ${idPedido}`;
 
-            //executar a query no banco e armazena a resposta do banco de dados
+            // executar a query no banco e armazena a resposta do banco de dados
             const respostaBD = await database.query(queryDeletePedido);
 
-            //verifica se o numero de linhas alteradas é diferente de 0
+            // verifica se o numero de linhas alteradas é diferente de 0
             if(respostaBD.rowCount != 0) {
-                //exibe uma mensagem no console
+                // exibe uma mensagem no console
                 console.log(`Pedido removido com sucesso! ID do pedido: ${idPedido}`);
-                // retorna true, indicando que o carro foi removido
+                // retorna true, indicando que o pedido foi removido
                 return true;
             }
 
@@ -226,7 +256,7 @@ export class PedidoVenda {
 
         // trata qualquer erro que possa acontecer no caminho    
         } catch (error) {
-            //exibe uma mensagem de falha
+            // exibe uma mensagem de falha
             console.log(`Erro ao remover pedido. Verifique os logs para mais detalhes.`);
             // imprime o erro no console da API
             console.log(error);
@@ -234,4 +264,51 @@ export class PedidoVenda {
             return false;
         }
     }
-} 
+
+    /**
+     * Atualiza os dados de um pedido de venda no banco de dados.
+     * 
+     * Esta função recebe um objeto do tipo `PedidoVenda` e atualiza seus dados (cliente, carro, data do pedido, valor do pedido)
+     * na tabela `pedido_venda` do banco de dados. O método retorna um valor booleano indicando se a atualização 
+     * foi realizada com sucesso.
+     * 
+     * @param {PedidoVenda} pedido - Objeto contendo os dados do pedido que será atualizado.
+     * @returns {Promise<boolean>} - Retorna `true` se a atualização foi realizada com sucesso e `false` caso contrário.
+     *                               Em caso de erro durante o processo, a função trata o erro e retorna `false`.
+     * 
+     * @throws {Error} - Se ocorrer algum erro durante a execução da atualização, uma mensagem de erro é exibida
+     *                   no console junto com os detalhes do erro.
+     */
+    static async atualizarPedido(pedido: PedidoVenda): Promise<boolean> {
+        try {
+            // query para fazer update de um pedido no banco de dados
+            const queryUpdatePedido = `UPDATE pedido_venda
+                                        SET id_cliente = ${pedido.getIdCliente()}, 
+                                            id_carro = ${pedido.getIdCarro()}, 
+                                            data_pedido = '${pedido.getDataPedido()}',
+                                            valor_pedido = ${pedido.getValorPedido()}
+                                        WHERE id_pedido = ${pedido.getIdPedido()};`;
+
+            // executa a query no banco e armazena a resposta
+            const respostaBD = await database.query(queryUpdatePedido);
+
+            // verifica se a quantidade de linhas modificadas é diferente de 0
+            if (respostaBD.rowCount != 0) {
+                console.log(`Pedido atualizado com sucesso! ID do pedido: ${pedido.getIdPedido()}`);
+                // true significa que a atualização foi bem sucedida
+                return true;
+            }
+            // false significa que a atualização NÃO foi bem sucedida.
+            return false;
+            
+            // tratando o erro
+        } catch (error) {
+            // imprime outra mensagem junto com o erro
+            console.log('Erro ao atualizar o pedido. Verifique os logs para mais detalhes.');
+            // imprime o erro no console
+            console.log(error);
+            // retorno um valor falso
+            return false;
+        }
+    }
+}

@@ -224,17 +224,24 @@ export class Carro {
         }
     }
 
-    static async removerCarro(idCarro: number) : Promise<boolean> {
+    /**
+     * Remove um carro do banco de dados.
+     * 
+     * @param {number} idCarro - ID do carro que será removido do banco de dados.
+     * 
+     * @returns {Promise<boolean>} - Retorna `true` se o carro foi removido com sucesso e `false` caso contrário.
+     */
+    static async removerCarro(idCarro: number): Promise<boolean> {
         try {
-            //cria uma query para deletar um objeto do banco de dados, passando como parâmetro
+            // cria uma query para deletar um objeto do banco de dados, passando como parâmetro
             const queryDeleteCarro = `DELETE FROM carro WHERE id_carro = ${idCarro}`;
 
-            //executar a query no banco e armazena a resposta do banco de dados
+            // executar a query no banco e armazena a resposta do banco de dados
             const respostaBD = await database.query(queryDeleteCarro);
 
-            //verifica se o numero de linhas alteradas é diferente de 0
+            // verifica se o numero de linhas alteradas é diferente de 0
             if(respostaBD.rowCount != 0) {
-                //exibe uma mensagem no console
+                // exibe uma mensagem no console
                 console.log(`Carro removido com sucesso! ID do carro: ${idCarro}`);
                 // retorna true, indicando que o carro foi removido
                 return true;
@@ -245,11 +252,52 @@ export class Carro {
 
         // trata qualquer erro que possa acontecer no caminho    
         } catch (error) {
-            //exibe uma mensagem de falha
+            // exibe uma mensagem de falha
             console.log(`Erro ao remover carro. Verifique os logs para mais detalhes.`);
             // imprime o erro no console da API
             console.log(error);
             // retorna false, o que indica que a remoção não foi feita
+            return false;
+        }
+    }
+
+    /**
+     * Atualiza as informações de um carro no banco de dados.
+     * 
+     * @param {Carro} carro - Objeto contendo os dados atualizados do carro. O objeto `Carro`
+     *                        deve conter os métodos `getMarca()`, `getModelo()`, `getAno()`, 
+     *                        `getCor()` e `getIdCarro()` que retornam os respectivos valores.
+     * @returns {Promise<boolean>} - Retorna `true` se o carro foi atualizado com sucesso e `false` caso contrário.
+     */
+    static async atualizarCarro(carro: Carro): Promise<boolean> {
+        try {
+            // query para fazer update de um carro no banco de dados
+            const queryUpdateCarro = `UPDATE carro
+                                        SET marca = '${carro.getMarca()}', 
+                                            modelo = '${carro.getModelo()}', 
+                                            ano = ${carro.getAno()}, 
+                                            cor = '${carro.getCor()}'
+                                        WHERE id_carro = ${carro.getIdCarro()};`;
+
+            // executa a query no banco e armazena a resposta
+            const respostaBD = await database.query(queryUpdateCarro);
+
+            // verifica se a quantidade de linhas modificadas é diferente de 0
+            if (respostaBD.rowCount != 0) {
+                console.log(`Carro atualizado com sucesso! ID do carro: ${carro.getIdCarro()}`);
+                // true significa que a atualização foi bem sucedida
+                return true;
+            }
+            // false significa que a atualização NÃO foi bem sucedida.
+            return false;
+            
+            // tratando o erro
+        } catch (error) {
+            // imprime outra mensagem junto com o erro
+            console.log('Erro ao atualizar o carro. Verifique os logs para mais detalhes.');
+            // imprime o erro no console
+            console.log(error);
+            // retorno um valor falso
             return false;
         }
     }
