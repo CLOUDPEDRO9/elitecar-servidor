@@ -84,4 +84,29 @@ export class PedidoVendaController {
             return res.status(400).json({ mensagem: "Não foi possível cadastrar o pedido. Entre em contato com o administrador do sistema." });
         }
     }
+
+    static async remover(req: Request, res: Response): Promise<Response> {
+        try {
+            // recuperando o id do carro que será removido
+            const idPedido = parseInt(req.params.idPedido as string);
+
+            // chamando a função de remoção de carro
+            const respostaModelo = await PedidoVenda.removerPedido(idPedido);
+
+            // verificando a resposta da função
+            if (respostaModelo) {
+                // retornar uma mensagem de sucesso
+                return res.status(200).json({ mensagem: "Pedido removido com sucesso!" });
+            } else {
+                // retorno uma mensagem de erro
+                return res.status(400).json({ mensagem: "Erro ao remover o pedido. Entre em contato com o administrador do sistema." })
+            }
+        } catch (error) {
+            // lança uma mensagem de erro no console
+            console.log(`Erro ao remover um pedido. ${error}`);
+
+            // retorna uma mensagem de erro para quem chamou a mensagem
+            return res.status(400).json({ mensagem: "Não foi possível remover o pedido. Entre em contato com o administrador do sistema." });
+        }
+    }
 } 

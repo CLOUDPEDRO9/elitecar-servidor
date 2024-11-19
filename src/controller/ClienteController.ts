@@ -78,4 +78,29 @@ export class ClienteController {
             return res.status(400).json({ mensagem: "Não foi possível cadastrar o cliente. Entre em contato com o administrador do sistema." });
         }
     }
+
+    static async remover(req: Request, res: Response): Promise<Response> {
+        try {
+            // recuperando o id do carro que será removido
+            const idCliente = parseInt(req.params.idCliente as string);
+
+            // chamando a função de remoção de carro
+            const respostaModelo = await Cliente.removerCliente(idCliente);
+
+            // verificando a resposta da função
+            if (respostaModelo) {
+                // retornar uma mensagem de sucesso
+                return res.status(200).json({ mensagem: "Cliente removido com sucesso!" });
+            } else {
+                // retorno uma mensagem de erro
+                return res.status(400).json({ mensagem: "Erro ao remover o cliente. Entre em contato com o administrador do sistema." })
+            }
+        } catch (error) {
+            // lança uma mensagem de erro no console
+            console.log(`Erro ao remover um cliente. ${error}`);
+
+            // retorna uma mensagem de erro para quem chamou a mensagem
+            return res.status(400).json({ mensagem: "Não foi possível remover o cliente. Entre em contato com o administrador do sistema." });
+        }
+    }
 } 
